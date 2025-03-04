@@ -8,6 +8,17 @@ from sentence_transformers import SentenceTransformer
 # Load the Sentence Transformer model
 model = SentenceTransformer("all-MiniLM-L6-v2")
 
+def read_config():
+    """Reads the client configuration from client.properties and returns it as a key-value map."""
+    config = {}
+    with open("client.properties") as fh:
+        for line in fh:
+            line = line.strip()
+            if len(line) != 0 and line[0] != "#":
+                parameter, value = line.strip().split('=', 1)
+                config[parameter] = value.strip()
+    return config
+
 def process_stock_data(stock_json):
     """Convert stock data into an embedding vector."""
     try:
@@ -18,8 +29,11 @@ def process_stock_data(stock_json):
     except Exception as e:
         return json.dumps({"error": str(e)})  # Handle errors gracefully
 
-
 def main():
+    kafka_props = read_config()
+    kafka_props["group.id"] = "python-group-1"
+    kafka_props["auto.offset.reset"] = "earliest"
+
     env = StreamExecutionEnvironment.get_execution_environment()
 
     print("Set up Flink")
@@ -33,7 +47,6 @@ def main():
     )
 
     print("Consumer created")
-
 
     # Read data from Kafka topic
     stock_stream = env.add_source(consumer)
