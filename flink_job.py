@@ -22,19 +22,18 @@ def process_stock_data(stock_json):
 def main():
     env = StreamExecutionEnvironment.get_execution_environment()
 
-    # Kafka Consumer Configuration
-    kafka_props = {
-        "bootstrap.servers": "YOUR_CONFLUENT_CLOUD_BROKER",
-        "group.id": "flink-embedding-group",
-        "auto.offset.reset": "earliest"
-    }
+    print("Set up Flink")
 
+    print("Props created")
     # Create Kafka Source
     consumer = FlinkKafkaConsumer(
         topics="new_documents",  # Match the producer's topic
         deserialization_schema=SimpleStringSchema(),
         properties=kafka_props
     )
+
+    print("Consumer created")
+
 
     # Read data from Kafka topic
     stock_stream = env.add_source(consumer)
