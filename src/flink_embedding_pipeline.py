@@ -11,7 +11,7 @@ KAFKA_CONFIG = {
     'security.protocol': 'SASL_SSL',
     'sasl.mechanism': 'PLAIN',
     'sasl.username': '4CEPHY36MPWKLVH3',
-    'sasl.password': 'your-confluent-api-secret',
+    'sasl.password': 'MKt4i1GD9Nk2tCY8WFVMOd+ERifSlbTsFRHi1Q4/YSZ4ZicFdA21cxHBZrE9U/6h',
     'group.id': 'flink-group',
     'auto.offset.reset': 'earliest'
 }
