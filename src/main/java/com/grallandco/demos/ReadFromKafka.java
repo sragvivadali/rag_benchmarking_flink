@@ -16,59 +16,20 @@
  * limitations under the License.
  */
 
-// package com.grallandco.demos;
-
-
-// import org.apache.flink.api.common.functions.MapFunction;
-// import org.apache.flink.streaming.api.datastream.DataStream;
-// import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-// import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer09;
-// import org.apache.flink.streaming.util.serialization.SimpleStringSchema;
-
-// import java.util.Properties;
-
-// public class ReadFromKafka {
-
-
-//   public static void main(String[] args) throws Exception {
-//     // create execution environment
-//     StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-
-//     Properties properties = new Properties();
-//     properties.setProperty("bootstrap.servers", "localhost:9092");
-//     properties.setProperty("group.id", "flink_consumer");
-
-
-//     DataStream<String> stream = env
-//             .addSource(new FlinkKafkaConsumer09<>("flink-demo", new SimpleStringSchema(), properties));
-
-//     stream.map(new MapFunction<String, String>() {
-//       private static final long serialVersionUID = -6867736771747690202L;
-
-//       @Override
-//       public String map(String value) throws Exception {
-//         return "Stream Value: " + value;
-//       }
-//     }).print();
-
-//     env.execute();
-//   }
-
-
-// }
-
 package com.grallandco.demos;
 
-import org.apache.flink.api.common.functions.RichMapFunction;
+import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer09;
 import org.apache.flink.streaming.util.serialization.SimpleStringSchema;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
@@ -84,51 +45,26 @@ public class ReadFromKafka {
         DataStream<String> stream = env
                 .addSource(new FlinkKafkaConsumer09<>("flink-demo", new SimpleStringSchema(), properties));
 
-        stream.map(new EmbeddingFunction()).print();
+        stream.map(new SendToEmbeddingService()).print();
 
         env.execute();
     }
 
-    public static class EmbeddingFunction extends RichMapFunction<String, String> {
+    public static class SendToEmbeddingService implements MapFunction<String, String> {
         @Override
         public String map(String value) throws Exception {
-            return getEmbedding(value);
-        }
+            String url = "http://localhost:5000/embed";
+            JSONObject json = new JSONObject();
+            json.put("id", System.currentTimeMillis());  // Unique ID for storage
+            json.put("text", value);
 
-        private String getEmbedding(String jsonString) {
-            try {
-                JSONObject jsonObject = new JSONObject(jsonString);
-                String text = jsonObject.optString("text", "");
+            try (CloseableHttpClient client = HttpClients.createDefault()) {
+                HttpPost request = new HttpPost(url);
+                request.setHeader("Content-Type", "application/json");
+                request.setEntity(new StringEntity(json.toString(), StandardCharsets.UTF_8));
 
-                URL url = new URL("http://localhost:8000/embed");
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("POST");
-                conn.setRequestProperty("Content-Type", "application/json");
-                conn.setDoOutput(true);
-
-                String requestBody = new JSONObject().put("text", text).toString();
-                try (OutputStream os = conn.getOutputStream()) {
-                    byte[] input = requestBody.getBytes(StandardCharsets.UTF_8);
-                    os.write(input, 0, input.length);
-                }
-
-                if (conn.getResponseCode() != 200) {
-                    return "Error calling embedding service";
-                }
-
-                try (InputStream is = conn.getInputStream();
-                     BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
-                    StringBuilder response = new StringBuilder();
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        response.append(line);
-                    }
-                    return "Embedding: " + response.toString();
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                return "Error generating embedding";
+                String response = EntityUtils.toString(client.execute(request).getEntity());
+                return "Embedded & Stored: " + response;
             }
         }
     }

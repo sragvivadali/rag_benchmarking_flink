@@ -26,10 +26,8 @@ Start a Kafka broker by running the following command in a new terminal:
 In another terminal, run the following command to create a Kafka topic called `flink-demo`:
 
 ``` bash
-./bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic flink-demo
-
+bin/kafka-topics.sh --create --topic flink-demo --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
 ```
-
 
 ## Build and Run the Application
 
@@ -49,6 +47,12 @@ and Producer:
 
 ```
 mvn exec:java -Dexec.mainClass=com.grallandco.demos.WriteToKafka
+```
+
+and Python embedding service: 
+
+```
+python3 embedding_service.py
 ```
 
 You should see messages printed in the Consumer console.
