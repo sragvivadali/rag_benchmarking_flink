@@ -1,19 +1,17 @@
 from flask import Flask, request, jsonify
 from sentence_transformers import SentenceTransformer
 import os
-from pinecone import Pinecone, ServerlessSpec
+from pinecone import Pinecone
 from dotenv import load_dotenv
 
 app = Flask(__name__)
-# model = SentenceTransformer("all-MiniLM-L6-v2")
 model = SentenceTransformer("BAAI/bge-large-en-v1.5")
 
-# Initialize the Pinecone client
-load_dotenv()
+load_dotenv(override=True)
 pinecone_api_key = os.getenv("PINECONE_API_KEY")
+print(f"Loaded API Key: {pinecone_api_key}")
 pc = Pinecone(api_key=pinecone_api_key)
 
-# Connect to your existing index
 index = pc.Index("vector-db-index")
 
 @app.route("/embed", methods=["POST"])
@@ -26,11 +24,21 @@ def embed_text():
 
     embedding = model.encode(text).tolist()
     
-    # Convert ID to string to ensure it's the correct type for Pinecone
     vector_id = str(data["id"])
     
-    # Store in Pinecone with string ID
-    index.upsert(vectors=[(vector_id, embedding)])
+    metadata = {
+        "text": text
+    }
+
+    response = index.upsert(
+        vectors=[
+            {
+                "id": vector_id, 
+                "values": embedding, 
+                "metadata": metadata
+            }
+        ],
+    )
 
     return jsonify({"embedding": embedding})
 
