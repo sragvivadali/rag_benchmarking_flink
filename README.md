@@ -55,13 +55,12 @@ and Producer:
 mvn exec:java -Dexec.mainClass=com.grallandco.demos.WriteToKafka
 ```
 
-and the RAG that uses the pinecone:
-
+Finally, you can run the RAG that uses the evolving Pinecone vector database:
 ```
 $ python3 rag_pinecone.py
 ```
 
-or the RAG that uses no context at all:
+or test the RAG that uses no context at all to compare performance:
 
 ```
 $ python3 rag_no_data.py
