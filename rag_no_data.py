@@ -4,18 +4,15 @@ import time
 
 load_dotenv(override=True)
 
-# Initialize the client
 openai_client = OpenAI()
 
 def get_stock_prices_with_rag_no_data(ticker_symbol):
-    # Define the query
     prompt = f"""
     Please provide the most recent stock price for {ticker_symbol} in the exact format below:
     The most recent stock price for TICKER was $PRICE.
     Do not provide any extra information, explanation, or guesses.
     """
     
-    # Request completion using the chat completions endpoint
     response = openai_client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
@@ -24,7 +21,6 @@ def get_stock_prices_with_rag_no_data(ticker_symbol):
         temperature=0,
     )
     
-    # Parse the response
     return response.choices[0].message.content.strip()
 
 if __name__ == "__main__":

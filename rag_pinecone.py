@@ -8,26 +8,19 @@ import time
 load_dotenv(override=True)
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
-# Initialize the clients
 openai_client = OpenAI()
 
-def get_stock_prices_with_rag(ticker_symbol):
-
-    
-    # Load the same embedding model as your Flask app
+def get_stock_prices_with_rag(ticker_symbol): 
     model = SentenceTransformer("BAAI/bge-large-en-v1.5")
     
-    # Initialize Pinecone
     pinecone_api_key = os.getenv("PINECONE_API_KEY")
     pc = Pinecone(api_key=pinecone_api_key)
     index = pc.Index("vector-db-index")
     
-    # Create query embedding
     query = f"What is the current stock price of {ticker_symbol}?"
     query_embedding = model.encode(query).tolist()
     
     # Search Pinecone for relevant documents
-    # Add filter to only retrieve documents related to the specific ticker symbol
     search_results = index.query(
         vector=query_embedding,
         top_k=4,
