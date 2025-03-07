@@ -3,13 +3,16 @@ from dotenv import load_dotenv
 from sentence_transformers import SentenceTransformer
 from pinecone import Pinecone
 import os
+import time
 
 load_dotenv(override=True)
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
+# Initialize the clients
+openai_client = OpenAI()
+
 def get_stock_prices_with_rag(ticker_symbol):
-    # Initialize the clients
-    openai_client = OpenAI()
+
     
     # Load the same embedding model as your Flask app
     model = SentenceTransformer("BAAI/bge-large-en-v1.5")
@@ -68,7 +71,13 @@ def get_stock_prices_with_rag(ticker_symbol):
     return response.choices[0].message.content.strip()
 
 if __name__ == "__main__":
+    start_time = time.time()
+
     tickers = ["AAPL", "TSLA", "AMZN", "VTI"]
     for ticker in tickers:
         stock_price = get_stock_prices_with_rag(ticker)
         print(f"{ticker} result: {stock_price}")
+
+    end_time = time.time()
+    total_time = end_time - start_time
+    print(f"\nTotal time taken: {total_time:.2f} seconds")

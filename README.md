@@ -6,9 +6,9 @@ This project is use a simple Flink job to show how to integrate Apache Kafka to 
 ## Start Kafka and Create Topic
 
 ``` bash
-curl -O http://www.us.apache.org/dist/kafka/0.9.0.0/kafka_2.11-0.9.0.0.tgz
-tar -xzf kafka_2.11-0.9.0.0.tgz
-cd kafka_2.11-0.9.0.0
+curl -OL https://downloads.apache.org/kafka/3.9.0/kafka_2.12-3.9.0.tgz
+tar -xzf kafka_2.12-3.9.0.tgz
+cd kafka_2.12-3.9.0
 ```
 
 Kafka uses ZooKeeper, if you do not have Zookeeper running, you can start it using the following command:
@@ -37,7 +37,13 @@ In the project folder:
 $ mvn clean package 
 ```
 
-And run the Flink Consumer:
+And run the Python embedding service:
+
+```
+$ python3 embedding_service.py
+```
+
+And Flink Consumer:
 
 ```
 $ mvn exec:java -Dexec.mainClass=com.grallandco.demos.ReadFromKafka
@@ -49,13 +55,15 @@ and Producer:
 mvn exec:java -Dexec.mainClass=com.grallandco.demos.WriteToKafka
 ```
 
-and Python embedding service: 
+and the RAG that uses the pinecone:
 
 ```
-python3 embedding_service.py
+$ python3 rag_pinecone.py
 ```
 
-You should see messages printed in the Consumer console.
+or the RAG that uses no context at all:
 
-You can run this application directly in a Flink cluster.
+```
+$ python3 rag_no_data.py
+```
 
