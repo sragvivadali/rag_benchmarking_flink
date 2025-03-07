@@ -29,6 +29,11 @@ In another terminal, run the following command to create a Kafka topic called `f
 bin/kafka-topics.sh --create --topic flink-demo --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
 ```
 
+If the topic `flink-demo` already exists, remove it first with the following command:
+``` bash
+bin/kafka-topics.sh --delete --topic flink-demo --bootstrap-server localhost:9092
+```
+
 ## Build and Run the Application
 
 In the project folder:

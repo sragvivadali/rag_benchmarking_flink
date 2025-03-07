@@ -3,6 +3,8 @@ from sentence_transformers import SentenceTransformer
 import os
 from pinecone import Pinecone
 from dotenv import load_dotenv
+from datetime import datetime, timezone
+import json
 
 app = Flask(__name__)
 model = SentenceTransformer("BAAI/bge-large-en-v1.5")
@@ -18,6 +20,22 @@ index = pc.Index("vector-db-index")
 def embed_text():
     data = request.json
     text = data.get("text", "")
+
+    # Convert JSON string to dictionary
+    data_dict = json.loads(text)
+
+    # Convert timestamp to date
+    # if "timestamp" in data_dict:
+    #     date = datetime.fromtimestamp(data_dict["timestamp"], tz=timezone.utc).date()
+    #     data_dict["date"] = str(date)
+    if "timestamp" in data_dict:
+        dt_utc = datetime.fromtimestamp(data_dict["timestamp"], tz=timezone.utc)
+        data_dict["date_time_utc"] = dt_utc.isoformat()
+
+    # Convert back to JSON string
+    text = json.dumps(data_dict, indent=4)
+
+    print(text)
 
     if not text:
         return jsonify({"error": "No text provided"}), 400

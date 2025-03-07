@@ -57,7 +57,7 @@ public class WriteToKafka {
             while (running) {
                 for (String symbol : symbols) {
                     String stockData = fetchStockData(symbol);
-                    // System.out.println(stockData);
+                    System.out.println(stockData);
                     if (stockData != null) {
                         ctx.collect(stockData);
                     }

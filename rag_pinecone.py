@@ -4,6 +4,7 @@ from sentence_transformers import SentenceTransformer
 from pinecone import Pinecone
 import os
 import time
+from datetime import datetime, timezone
 
 load_dotenv(override=True)
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
@@ -17,20 +18,24 @@ def get_stock_prices_with_rag(ticker_symbol):
     pc = Pinecone(api_key=pinecone_api_key)
     index = pc.Index("vector-db-index")
     
-    query = f"What is the current stock price of {ticker_symbol}?"
+    timestamp = int(datetime.now(timezone.utc).timestamp()) - (15 * 60)
+    dt_utc = datetime.fromtimestamp(timestamp, tz=timezone.utc)
+
+    # date = datetime.fromtimestamp(timestamp, tz=timezone.utc).date()
+
+    query = f"What is the current stock price of {ticker_symbol} at date_time_utc {dt_utc}?"
     query_embedding = model.encode(query).tolist()
     
     # Search Pinecone for relevant documents
     search_results = index.query(
         vector=query_embedding,
-        top_k=4,
+        top_k=3,
         include_metadata=True
     )
 
     # Extract contexts from search results
     contexts = []
     for result in search_results.matches:
-        # print(result)
         if hasattr(result, 'metadata') and 'text' in result.metadata:
             contexts.append(result.metadata['text'])
     
