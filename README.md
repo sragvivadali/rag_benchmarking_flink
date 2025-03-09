@@ -39,6 +39,7 @@ bin/kafka-topics.sh --delete --topic flink-demo --bootstrap-server localhost:909
 In the project folder:
 
 ```
+$ pip3 install requirements.txt
 $ mvn clean package 
 ```
 
