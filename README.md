@@ -48,7 +48,7 @@ And run the Python embedding service:
 $ python3 embedding_service.py
 ```
 
-And Flink Consumer:
+and Flink Consumer:
 
 ```
 $ mvn exec:java -Dexec.mainClass=com.grallandco.demos.ReadFromKafka
