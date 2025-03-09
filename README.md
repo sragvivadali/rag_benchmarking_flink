@@ -1,7 +1,6 @@
-# Apache Flink and Apache Kafka
+# RAG with Streaming VectorDB via Kafka and Flink
 
-This project is use a simple Flink job to show how to integrate Apache Kafka to Flink using the Flink Connector for Kafka.
-
+A Retrieval-Augmented Generation (RAG) system for financial stock market data integrating a streaming Pinecone vector database with Kafka and Flink for real-time data processing and retrieval.
 
 ## Start Kafka and Create Topic
 
