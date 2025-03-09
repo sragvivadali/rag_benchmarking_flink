@@ -1,0 +1,8 @@
+openai
+python-dotenv
+requests
+psutil
+statistics
+sentence-transformers
+pinecone-client
+flask
